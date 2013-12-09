@@ -9,6 +9,8 @@ class Octave < Formula
   option 'without-fltk', 'Compile without fltk (disables native graphics)'
   option 'test', 'Run tests before installing'
 
+  depends_on :fortran
+
   depends_on 'pkg-config' => :build
   depends_on 'gnu-sed' => :build
   depends_on 'texinfo' => :build     # OS X's makeinfo won't work for this
@@ -43,6 +45,18 @@ class Octave < Formula
     depends_on 'fltk'
   end
 
+  # The fix for std::unordered_map requires regenerating
+  # configure. Remove once the fix is in next release.
+  depends_on :autoconf => :build
+  depends_on :automake => :build
+  depends_on :libtool => :build
+
+  def patches
+    # Pull upstream patch to fix configure script on std::unordered_map
+    # detection.
+    'http://hg.savannah.gnu.org/hgweb/octave/raw-rev/26b2983a8acd'
+  end
+
   def blas_flags
     flags = []
     flags << "-ldotwrp" if MacOS.version == :snow_leopard and MacOS.prefer_64_bit?
@@ -53,11 +67,6 @@ class Octave < Formula
   end
 
   def install
-    ENV.fortran
-
-    # yes, compiling octave takes a long time, but using -O2 gives negligible savings
-    # build time with -O2: user 58m5.295s   sys 7m29.064s
-    # build time with -O3: user 58m58.054s  sys 7m52.221s
     ENV.m64 if MacOS.prefer_64_bit?
     ENV.append_to_cflags "-D_REENTRANT"
 
@@ -71,6 +80,10 @@ class Octave < Formula
     args << "--without-framework-carbon" if MacOS.version >= :lion
     # avoid spurious 'invalid assignment to cs-list' erorrs on 32 bit installs:
     args << 'CXXFLAGS=-O0' unless MacOS.prefer_64_bit?
+
+    # The fix for std::unordered_map requires regenerating
+    # configure. Remove once the fix is in next release.
+    system "autoreconf", "-ivf"
 
     system "./configure", *args
     system "make all"
@@ -99,7 +112,13 @@ class Octave < Formula
       if you are using Aquaterm, use "GNUTERM=aqua".
     EOS
 
-    s = gnuplot_caveats
+    glpk_caveats = <<-EOS.undent
+
+      GLPK functionality has been disabled due to API incompatibility.
+    EOS
+
+    s = glpk_caveats
+    s = gnuplot_caveats + s
     s = native_caveats + s unless build.include? 'without-fltk'
   end
 end

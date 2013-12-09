@@ -2,8 +2,9 @@ require 'formula'
 
 class Wcslib < Formula
   homepage 'http://www.atnf.csiro.au/people/mcalabre/WCS/'
-  url 'ftp://ftp.atnf.csiro.au/pub/software/wcslib/wcslib-4.16.tar.bz2'
-  sha1 'd321ee3c82ecb14e447006ed475f3f0217aa589f'
+  url 'ftp://ftp.atnf.csiro.au/pub/software/wcslib/wcslib.tar.bz2'
+  sha1 'b8703b59fa97fa7f7d8aff620b0bd695d613b766'
+  version '4.19'
 
   option 'with-pgsbox', 'Build PGSBOX, a general curvilinear axis drawing routine for PGPLOT'
   option 'with-fortran', "Build Fortran wrappers. Needed for --with-pgsbox."
@@ -12,10 +13,9 @@ class Wcslib < Formula
   depends_on 'cfitsio'
   depends_on 'pgplot' if build.include? 'with-pgsbox'
   depends_on :x11 if build.include? 'with-pgsbox'
+  depends_on :fortran if build.with? 'fortran' or build.with? 'pgsbox'
 
   def install
-    ENV.fortran if build.include? 'with-fortran' or build.include? 'with-pgsbox'
-
     args = [ "--disable-debug",
              "--disable-dependency-tracking",
              "--prefix=#{prefix}",
@@ -27,7 +27,7 @@ class Wcslib < Formula
       args << "--with-pgplotinc=#{Formula.factory('pgplot').opt_prefix}/include"
     else
       args << "--without-pgplot"
-      args << "--disable-fortran" unless build.include? 'with-fortran'
+      args << "--disable-fortran" unless build.with? 'fortran'
     end
 
     system "./configure", *args

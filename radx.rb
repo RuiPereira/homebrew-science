@@ -2,19 +2,15 @@ require 'formula'
 
 class Radx < Formula
   homepage 'http://www.ral.ucar.edu/projects/titan/docs/radial_formats/radx.html'
-  url 'ftp://ftp.rap.ucar.edu/pub/titan/radx/Radx-20121120.src.tgz'
-  version '20121120'
-  sha1 '2c0ffa04c0f6b942fb2de1ec35256f857b5d2d63'
+  url 'ftp://ftp.rap.ucar.edu/pub/titan/radx/Radx-20130712.src.tgz'
+  mirror 'ftp://ftp.rap.ucar.edu/pub/titan/radx/previous_releases/Radx-20130712.src.tgz'
+  version '20130712'
+  sha1 '0d077891b43e363beeb2926e2464760186158568'
 
   depends_on 'hdf5'
   depends_on 'udunits'
   depends_on 'netcdf' => 'enable-cxx-compat'
   depends_on 'fftw'
-
-  fails_with :clang do
-    build 421
-    cause "DsMdvx/msg_add.cc:516:11: error: '_printVsectWayPtsBuf' is a protected member of 'Mdvx'"
-  end
 
   def install
     system "./configure", "--disable-dependency-tracking", "--prefix=#{prefix}"

@@ -1,7 +1,7 @@
 require 'formula'
 
 class SnidTemplates < Formula
-  url 'http://www.oamp.fr/people/blondin/software/snid/templates-2.0.tgz'
+  url 'http://people.lam.fr/blondin.stephane/software/snid/templates-2.0.tgz'
   sha1 '1e5c33ee998203abc171e7fdda7114a27130d418'
 end
 
@@ -12,14 +12,14 @@ end
 
 class Snid < Formula
   homepage 'http://www.oamp.fr/people/blondin/software/snid/'
-  url 'http://www.oamp.fr/people/blondin/software/snid/snid-5.0.tar.gz'
+  url 'http://people.lam.fr/blondin.stephane/software/snid/snid-5.0.tar.gz'
   sha1 '0ba81c23584388065169b88bf54a9c3975b12460'
 
   depends_on :x11
   depends_on 'pgplot' => 'with-button'
 
   # no libbutton compilation and patch for new templates
-  # as per http://www.oamp.fr/people/blondin/software/snid/README_templates-2.0
+  # as per http://people.lam.fr/blondin.stephane/software/snid/README_templates-2.0
   def patches; DATA; end
 
   def install

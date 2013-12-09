@@ -6,16 +6,32 @@ class Blast < Formula
   version '2.2.28'
   sha1 '6941d2b83c410b2e2424266d8ee29ee7581c23d6'
 
+  depends_on 'gnutls' => :optional
+
   option 'with-dll', "Create dynamic binaries instead of static"
+
+  fails_with :clang do
+    build 500
+    cause "error: 'bits/c++config.h' file not found"
+  end
+
+  def patches
+    # Support recent versions of gnutls
+    'http://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/c%2B%2B/src/connect/ncbi_gnutls.c?view=patch&r1=57856&r2=57915'
+  end
 
   def install
     args = ["--prefix=#{prefix}"]
     args << "--with-dll" if build.include? 'with-dll'
 
     cd 'c++' do
-      system "./configure", *args
+      system './configure', '--without-debug', '--with-mt', *args
       system "make"
       system "make install"
+
+      # libproj.a conflicts with the formula proj
+      libexec.mkdir
+      mv Dir[lib / 'lib*.a'], libexec
     end
   end
 
@@ -27,6 +43,8 @@ class Blast < Formula
     Static binaries should be used for speed if the executable requires
     fast startup time, such as if another program is frequently restarting
     the blast executables.
+
+    Static libraries are installed in #{libexec}
     EOS
   end
 end
